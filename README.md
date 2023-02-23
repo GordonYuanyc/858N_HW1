@@ -14,6 +14,8 @@ directory, and uses reduce as an example.
 # Instructions
 Create a new repository by clicking ``Use this template``->``Create a new repository`` and work on that.
 
+Just did this part
+
 ## What you should submit
 
 Please submit your code on Gradescope (you can directly link your github repo). Also,
