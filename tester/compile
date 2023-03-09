@@ -4,12 +4,12 @@
 
 cd ../reduce
 make clean
-make MXMAC=1
+make 
 
 cd ../scan
 make clean
-make MXMAC=1
+make 
 
 cd ../listrank
 make clean
-make MXMAC=1
+make 
