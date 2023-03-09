@@ -86,3 +86,40 @@ Round 1 running time: 0.392247
 Round 2 running time: 0.390589
 Round 3 running time: 0.390527
 Average running time: 0.391121
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Scan:
+
+Baseline:
+compile with "make":
+$ PARLAY_NUM_THREADS=16 ./scan 1000000000 3
+n = 1000000000 num_rounds = 3 func = max
+Scan total: 500000000500000000
+Warmup round running time: 0.713537
+Round 1 running time: 0.723941
+Round 2 running time: 0.670365
+Round 3 running time: 0.670348
+Average running time: 0.688218
+
+$ PARLAY_NUM_THREADS=1 ./scan 1000000000 3
+n = 1000000000 num_rounds = 3 func = max
+Scan total: 500000000500000000
+Warmup round running time: 0.629394
+Round 1 running time: 0.629346
+Round 2 running time: 0.630634
+Round 3 running time: 0.637827
+Average running time: 0.632602
+
+compile with "make SERIAL=1":
+$ PARLAY_NUM_THREADS=1 ./scan 1000000000 3
+n = 1000000000 num_rounds = 3 func = max
+Scan total: 500000000500000000
+Warmup round running time: 0.67122
+Round 1 running time: 0.64884
+Round 2 running time: 0.636376
+Round 3 running time: 0.650845
+Average running time: 0.645354
+
+<<<<====================>>>>
+
