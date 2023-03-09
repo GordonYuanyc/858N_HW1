@@ -11,12 +11,27 @@ T serial_reduce(T *A, size_t n) {
   return tot;
 }
 
+// template <class T>
+// T reduce(T *A, size_t n) {
+//   T tot = 0;
+//   for (size_t i=0; i<n; ++i) {
+//     tot += A[i];
+//   }
+//   return tot;
+// }
+
 template <class T>
 T reduce(T *A, size_t n) {
   if (n == 0) {
     return 0;
   } else if (n == 1) {
     return A[0];
+  } else if (n < 1000) {
+    T tot = 0;
+    for (size_t i = 0; i < n; ++i) {
+      tot += A[i];
+    }
+    return tot;
   } else {
     T v1, v2;
     auto f1 = [&]() { v1 = reduce(A, n / 2); };

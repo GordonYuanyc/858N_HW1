@@ -2,11 +2,87 @@ UID: 119173145
 Name: Yancheng Yuan
 
 Reduce:
-PARLAY_NUM_THREADS=16 ./reduce 1000000000 3
+
+Baseline:
+recursive version:
+compile with "make":
+$ PARLAY_NUM_THREADS=16 ./reduce 1000000000 3
 n = 1000000000 num_rounds = 3
 Total sum: 499999999500000000
-Warmup round running time: 13.8623
-Round 1 running time: 14.947
-Round 2 running time: 14.6066
-Round 3 running time: 14.4243
-Average running time: 14.6593
+Warmup round running time: 3.14582
+Round 1 running time: 3.1326
+Round 2 running time: 3.17485
+Round 3 running time: 3.22308
+Average running time: 3.17684
+
+$ PARLAY_NUM_THREADS=1 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 35.8304
+Round 1 running time: 35.7152
+Round 2 running time: 35.5299
+Round 3 running time: 35.5362
+Average running time: 35.5937
+
+compile with "make SERIAL=1":
+$ PARLAY_NUM_THREADS=1 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 1.72089
+Round 1 running time: 1.72657
+Round 2 running time: 1.70688
+Round 3 running time: 1.70501
+Average running time: 1.71282
+<<<<====================>>>>
+
+serial version:
+compile with "make":
+$ PARLAY_NUM_THREADS=16 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 0.367324
+Round 1 running time: 0.36932
+Round 2 running time: 0.361194
+Round 3 running time: 0.359598
+Average running time: 0.363371
+
+$ PARLAY_NUM_THREADS=1 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 0.345008
+Round 1 running time: 0.325899
+Round 2 running time: 0.326225
+Round 3 running time: 0.325265
+Average running time: 0.325796
+
+compile with "make SERIAL=1":
+$ PARLAY_NUM_THREADS=1 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 0.325599
+Round 1 running time: 0.383546
+Round 2 running time: 0.387953
+Round 3 running time: 0.340765
+Average running time: 0.370755
+
+<<<<====================>>>>
+
+granularity 1000 (when array is smaller than 1000, serial reduce):
+compile with "make":
+$ PARLAY_NUM_THREADS=16 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 0.176009
+Round 1 running time: 0.177472
+Round 2 running time: 0.176296
+Round 3 running time: 0.176038
+Average running time: 0.176602
+
+$ PARLAY_NUM_THREADS=1 ./reduce 1000000000 3
+n = 1000000000 num_rounds = 3
+Total sum: 499999999500000000
+Warmup round running time: 0.39086
+Round 1 running time: 0.392247
+Round 2 running time: 0.390589
+Round 3 running time: 0.390527
+Average running time: 0.391121
