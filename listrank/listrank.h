@@ -86,9 +86,23 @@ void WyllieListRanking(ListNode* L, size_t n) {
     }
     succbackup[i] = succ[i]; 
   });
+  
 
   size_t hopbound = log2_up(n);
-
+  //for (size_t i = 0; i < n; i++) {
+  //  if (L[i].next == nullptr) {
+  //    D[i] = 0;
+  //    succ[i] = i;
+  //  } else {
+  //    D[i] = 1;
+  //    for (size_t j = 0; j < n; j++){
+  //	if (L[j].next == &L[j]) {
+  //	  succ[i] = j;
+  //	}
+  //  }
+  //}
+  //succbackup[i] = succ[i];
+  //}
   for (size_t i = 0; i < hopbound; i++) {
     parallel_for(0, n, [&](size_t i) {
       if (succ[i]) {
