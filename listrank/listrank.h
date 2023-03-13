@@ -55,6 +55,11 @@ void SerialListRanking(ListNode* head) {
     head = head->next;
     --ctr;
   }
+  //   ListNode* temp = save;
+  // while (temp != nullptr) {
+  //   std::cout << temp->rank << " ; " << std::endl;
+  //   temp = temp->next;
+  // }
 }
 
 // Wyllie's List Ranking. Based on pointer-jumping.
@@ -63,7 +68,47 @@ void SerialListRanking(ListNode* head) {
 // Work = O(n*\log(n))
 // Depth = O(\log^2(n))
 void WyllieListRanking(ListNode* L, size_t n) {
+  size_t* D = (size_t*)malloc(n * sizeof(size_t));
+  size_t* succ = (size_t*)malloc(n * sizeof(size_t));
+  size_t* succbackup = (size_t*)malloc(n * sizeof(size_t));
+  
+  parallel_for(0, n, [&](size_t i) { 
+    if (L[i].next == nullptr) {
+      D[i] = 0;
+      succ[i] = i;
+    } else {
+      D[i] = 1;
+      parallel_for(0, n, [&](size_t j) {
+        if (L[i].next == &L[j]) {
+          succ[i] = j;
+        }
+      });
+    }
+    succbackup[i] = succ[i]; 
+  });
 
+  size_t hopbound = log2_up(n);
+
+  for (size_t i = 0; i < hopbound; i++) {
+    parallel_for(0, n, [&](size_t i) {
+      if (succ[i]) {
+        D[i] = D[i] + D[succ[i]];
+      }
+      succbackup[i] = succ[succ[i]];
+      succ[i] = succbackup[i];
+    });
+  }
+
+  parallel_for(0, n, [&](size_t i) { L[i].rank = D[i]; });
+
+  // ListNode* temp = L;
+  // while (temp != nullptr) {
+  //   std::cout << temp->rank << " ; " << temp <<std::endl;
+  //   temp = temp->next;
+  // }
+  free(D);
+  free(succ);
+  free(succbackup);
 }
 
 
