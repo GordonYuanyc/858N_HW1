@@ -112,9 +112,10 @@ void WyllieListRanking(ListNode* L, size_t n) {
   //   parallel_for(0, n, [&](size_t i) {
   //     if (succ[i] != i) {
   //       D[i] = D[i] + D[succ[i]];
+  //       succbackup[i] = succ[succ[i]];
+  //       succ[i] = succbackup[i];
   //     }
-  //     succbackup[i] = succ[succ[i]];
-  //     succ[i] = succbackup[i];
+
   //   });
   // }
 
