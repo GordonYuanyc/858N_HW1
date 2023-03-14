@@ -82,7 +82,17 @@ void WyllieListRanking(ListNode* L, size_t n) {
       // std::cout << "i: " << i << "; L[i].next: " << L[i].next;
       // std::cout << "; &L[i]: " << &L[i] << "; sizeof node: " << sizeof(ListNode) << std::endl;
       // std::cout << "Arithmatic result: " << (L[i].next-&L[i]) << std::endl;
+      
+      // folloing is serial operation, should be correct
+      // for (size_t j = 0; j < n; j++) {
+      //   if (L[i].next == &L[j]) {
+      //     succ[i] = j;
+      //   }
+      // }
+
+      // following is a pointer calculation, maynot be correct
       succ[i] = i + (size_t)(L[i].next-&L[i]); // / sizeof(ListNode);
+      
       // parallel_for(0, n, [&](size_t j) {
       //   if (L[i].next == &L[j]) {
       //     succ[i] = j;
@@ -98,19 +108,31 @@ void WyllieListRanking(ListNode* L, size_t n) {
 
   size_t hopbound = log2_up(n);
 
+  // for (size_t j = 0; j < hopbound; j++) {
+  //   parallel_for(0, n, [&](size_t i) {
+  //     if (succ[i] != i) {
+  //       D[i] = D[i] + D[succ[i]];
+  //     }
+  //     succbackup[i] = succ[succ[i]];
+  //     succ[i] = succbackup[i];
+  //   });
+  // }
+
+  // following is serial, may not be correct
   for (size_t j = 0; j < hopbound; j++) {
-    parallel_for(0, n, [&](size_t i) {
+    for (size_t i = 0; i < n; i++) {
       if (succ[i] != i) {
         D[i] = D[i] + D[succ[i]];
+        succbackup[i] = succ[succ[i]];
+        succ[i] = succbackup[i];
       }
-      succbackup[i] = succ[succ[i]];
-      succ[i] = succbackup[i];
-    });
+
+    }
   }
 
   parallel_for(0, n, [&](size_t i) { L[i].rank = D[i]; });
 
-  std::cout << D[0] << " " << L[0].rank << std::endl;
+  // std::cout << D[0] << " " << L[0].rank << std::endl;
 
   // ListNode* temp = L;
   // while (temp != nullptr) {
