@@ -69,6 +69,7 @@ void SerialListRanking(ListNode* head) {
 // Depth = O(\log^2(n))
 void WyllieListRanking(ListNode* L, size_t n) {
   size_t* D = (size_t*)malloc(n * sizeof(size_t));
+  size_t* Dbackup = (size_t*)malloc(n * sizeof(size_t));
   size_t* succ = (size_t*)malloc(n * sizeof(size_t));
   size_t* succbackup = (size_t*)malloc(n * sizeof(size_t));
   
@@ -78,58 +79,29 @@ void WyllieListRanking(ListNode* L, size_t n) {
       succ[i] = i;
     } else {
       D[i] = 1;
-      // succ[i] = i;
-      // std::cout << "i: " << i << "; L[i].next: " << L[i].next;
-      // std::cout << "; &L[i]: " << &L[i] << "; sizeof node: " << sizeof(ListNode) << std::endl;
-      // std::cout << "Arithmatic result: " << (L[i].next-&L[i]) << std::endl;
-      
-      // folloing is serial operation, should be correct
-      // for (size_t j = 0; j < n; j++) {
-      //   if (L[i].next == &L[j]) {
-      //     succ[i] = j;
-      //   }
-      // }
 
       // following is a pointer calculation, maynot be correct
       succ[i] = i + (size_t)(L[i].next-&L[i]); // / sizeof(ListNode);
-      
-      // parallel_for(0, n, [&](size_t j) {
-      //   if (L[i].next == &L[j]) {
-      //     succ[i] = j;
-      //   }
-      // });
     }
     succbackup[i] = succ[i]; 
+    Dbackup[i] = D[i];
   });
-  // for (size_t i = 0; i < n; i++) {
-  //   std::cout << "(" << i << " , " << succ[i] << " , " << &L[i] << ") : ";
-  // }
-  // std::cout << "\nSEG FAULT CHECK" << std::endl;
 
   size_t hopbound = log2_up(n);
 
-  // for (size_t j = 0; j < hopbound; j++) {
-  //   parallel_for(0, n, [&](size_t i) {
-  //     if (succ[i] != i) {
-  //       D[i] = D[i] + D[succ[i]];
-  //       succbackup[i] = succ[succ[i]];
-  //       succ[i] = succbackup[i];
-  //     }
-
-  //   });
-  // }
-
-  // following is serial, may not be correct
   for (size_t j = 0; j < hopbound; j++) {
-    for (size_t i = 0; i < n; i++) {
+    parallel_for(0, n, [&](size_t i) {
       if (succ[i] != i) {
-        D[i] = D[i] + D[succ[i]];
+        Dbackup[i] = D[i] + D[succ[i]];
         succbackup[i] = succ[succ[i]];
-        succ[i] = succbackup[i];
       }
-
-    }
+    });
+    parallel_for(0, n, [&](size_t i) { 
+      D[i] = Dbackup[i];
+      succ[i] = succbackup[i]; 
+    });
   }
+
 
   parallel_for(0, n, [&](size_t i) { L[i].rank = D[i]; });
 
@@ -142,6 +114,7 @@ void WyllieListRanking(ListNode* L, size_t n) {
   // }
   // std::cout << "END OF OUTPUT" << std::endl;
   free(D);
+  free(Dbackup);
   free(succ);
   free(succbackup);
 }
@@ -157,6 +130,10 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 
   if (num_samples == -1) {
     num_samples = sqrt(n);
+  }
+
+  for (size_t i = 0; i < n; i++)  {
+    std::cout << "num_samples: " << num_samples << " ; " << "random: " << r[i%num_samples] << std::endl;
   }
 
 }
