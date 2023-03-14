@@ -78,34 +78,29 @@ void WyllieListRanking(ListNode* L, size_t n) {
       succ[i] = i;
     } else {
       D[i] = 1;
-      parallel_for(0, n, [&](size_t j) {
-        if (L[i].next == &L[j]) {
-          succ[i] = j;
-        }
-      });
+      // succ[i] = i;
+      // std::cout << "i: " << i << "; L[i].next: " << L[i].next;
+      // std::cout << "; &L[i]: " << &L[i] << "; sizeof node: " << sizeof(ListNode) << std::endl;
+      // std::cout << "Arithmatic result: " << (L[i].next-&L[i]) << std::endl;
+      succ[i] = i + (size_t)(L[i].next-&L[i]); // / sizeof(ListNode);
+      // parallel_for(0, n, [&](size_t j) {
+      //   if (L[i].next == &L[j]) {
+      //     succ[i] = j;
+      //   }
+      // });
     }
     succbackup[i] = succ[i]; 
   });
-  
+  // for (size_t i = 0; i < n; i++) {
+  //   std::cout << "(" << i << " , " << succ[i] << " , " << &L[i] << ") : ";
+  // }
+  // std::cout << "\nSEG FAULT CHECK" << std::endl;
 
   size_t hopbound = log2_up(n);
-  //for (size_t i = 0; i < n; i++) {
-  //  if (L[i].next == nullptr) {
-  //    D[i] = 0;
-  //    succ[i] = i;
-  //  } else {
-  //    D[i] = 1;
-  //    for (size_t j = 0; j < n; j++){
-  //	if (L[j].next == &L[j]) {
-  //	  succ[i] = j;
-  //	}
-  //  }
-  //}
-  //succbackup[i] = succ[i];
-  //}
-  for (size_t i = 0; i < hopbound; i++) {
+
+  for (size_t j = 0; j < hopbound; j++) {
     parallel_for(0, n, [&](size_t i) {
-      if (succ[i]) {
+      if (succ[i] != i) {
         D[i] = D[i] + D[succ[i]];
       }
       succbackup[i] = succ[succ[i]];
@@ -115,11 +110,14 @@ void WyllieListRanking(ListNode* L, size_t n) {
 
   parallel_for(0, n, [&](size_t i) { L[i].rank = D[i]; });
 
+  std::cout << D[0] << " " << L[0].rank << std::endl;
+
   // ListNode* temp = L;
   // while (temp != nullptr) {
-  //   std::cout << temp->rank << " ; " << temp <<std::endl;
+  //   std::cout << "(" << temp->rank << " , " << temp << ") ; ";
   //   temp = temp->next;
   // }
+  // std::cout << "END OF OUTPUT" << std::endl;
   free(D);
   free(succ);
   free(succbackup);
