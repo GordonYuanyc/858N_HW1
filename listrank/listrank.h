@@ -32,7 +32,8 @@ size_t log2_up(T i) {
 struct ListNode {
   ListNode* next;
   size_t rank;
-  ListNode(ListNode* next) : next(next), rank(std::numeric_limits<size_t>::max()) {}
+  ListNode* samplesucc;
+  ListNode(ListNode* next) : next(next), rank(std::numeric_limits<size_t>::max()), samplesucc(nullptr) {}
 };
 
 // Serial List Ranking. The rank of a node is its distance from the
@@ -132,9 +133,126 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
     num_samples = sqrt(n);
   }
 
-  for (size_t i = 0; i < n; i++)  {
-    std::cout << "num_samples: " << num_samples << " ; " << "random: " << r[i%num_samples] << std::endl;
+  size_t* sampling = (size_t*)malloc(n * sizeof(size_t));
+  size_t* weight = (size_t*)malloc(n * sizeof(size_t));
+  size_t lastindex = 0;
+
+  parallel_for(0, n, [&] (size_t i) {
+    sampling[i] = r[i] % num_samples;
+  });
+  parallel_for(0, n, [&] (size_t i) {
+    if (L[i].next == nullptr) {
+      lastindex = i;
+    }
+    L[i].rank = n;
+  });
+  L[lastindex].samplesucc = nullptr;
+  L[lastindex].rank = 0;
+  size_t identifier = sampling[0];
+  
+  parallel_for(0, n, [&] (size_t i) {
+    if (i == lastindex) {
+      // this is the special case
+      weight[i] = 0;
+    } else {
+      if (sampling[i] == identifier) {
+        size_t w = 0;
+        ListNode* t = &L[i];
+        while (t->next != nullptr) {
+          t = t->next;
+          size_t index = (size_t) (t-L);
+          if (index == lastindex) {
+            break;
+          }
+          // std::cout << "something here " << index << std::endl;
+          if (sampling[index] == identifier) {
+            break;
+            // std::cout << index << "break" << std::endl;
+            // t = t->next;
+          } else {
+            w = w + 1;
+            // t = t->next;
+          }
+        }
+        weight[i] = w;
+        L[i].rank = w;
+        L[i].samplesucc = t;
+      } else {
+        weight[i] = n+1;
+      }
+    }
+  });
+
+  // ListNode* temp = L;
+  // while (temp != nullptr) {
+  //   size_t index = (size_t) (temp - L);
+  //   std::cout << "(" << index << "," << temp->rank << ")->";
+  //   temp = temp->next;
+  // }
+  // std::cout << std::endl;
+  
+  // sample node rank calculation
+  size_t ctr = 0;
+  ListNode* head = L;
+  while (head != nullptr) {
+    ctr = ctr + head->rank + 1;
+    head = head->samplesucc;
   }
+  head = L;
+  --ctr;  // last node is distance 0
+  while (head != nullptr) {
+    size_t temp = head->rank;
+    head->rank = ctr;
+    head = head->samplesucc;
+    ctr = ctr - temp - 1;
+  }
+
+  // non sample node rank calculation
+  parallel_for(0, n, [&](size_t i) {
+    // ListNode curr = L[i];
+    if (L[i].rank < n) {
+      // this is a sample node
+      // ListNode* hd = &curr;
+      ListNode* hd = &(L[i]);
+      size_t currcounter = hd->rank;
+      while (hd != L[i].samplesucc) {
+        hd->rank = currcounter;
+        currcounter = currcounter - 1;
+        hd = hd->next;
+      }
+    }
+  });
+
+  std::cout << L[0].rank << " " << L[1].rank << std::endl;
+
+  // final check and output message
+  // std::cout << "FINAL CHECK" << std::endl;
+  // temp = L;
+  // while (temp != nullptr) {
+  //   size_t index = (size_t) (temp - L);
+  //   std::cout << "(" << index << "," << temp->rank << ")->";
+  //   temp = temp->next;
+  // }
+  // std::cout << std::endl;
+  // temp = L;
+  // while (temp != nullptr) {
+  //   size_t index = (size_t) (temp - L);
+  //   std::cout << "(" << index << " , " << sampling[index] << " , " << weight[index] << ") ; ";
+  //   temp = temp->next;
+  // }
+  // std::cout << std::endl;
+  // temp = L;
+  // while (temp != nullptr) {
+  //   size_t index = (size_t) (temp - L);
+  //   size_t nindex = (size_t) (temp->samplesucc - L);
+  //   std::cout << "(" << index << " -> " << nindex << ") -> ";
+  //   temp = temp->next;
+  // }
+  // std::cout << std::endl;
+  // std::cout << "END OF OUTPUT" << std::endl;
+
+  free(sampling);
+  free(weight);
 
 }
 
