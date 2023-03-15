@@ -33,7 +33,8 @@ struct ListNode {
   ListNode* next;
   size_t rank;
   ListNode* samplesucc;
-  ListNode(ListNode* next) : next(next), rank(std::numeric_limits<size_t>::max()), samplesucc(nullptr) {}
+  bool sampleflag;
+  ListNode(ListNode* next) : next(next), rank(std::numeric_limits<size_t>::max()), samplesucc(nullptr), sampleflag(false) {}
 };
 
 // Serial List Ranking. The rank of a node is its distance from the
@@ -145,6 +146,7 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
       lastindex = i;
     }
     L[i].rank = n;
+    L[i].sampleflag = false;
   });
   L[lastindex].samplesucc = nullptr;
   L[lastindex].rank = 0;
@@ -177,11 +179,15 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
         weight[i] = w;
         L[i].rank = w;
         L[i].samplesucc = t;
+        L[i].sampleflag = true;
       } else {
         weight[i] = n+1;
       }
     }
   });
+
+  // debugging message to see what the list looks like before
+  // assigning rank to non sample nodes
 
   // ListNode* temp = L;
   // while (temp != nullptr) {
@@ -210,7 +216,7 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
   // non sample node rank calculation
   parallel_for(0, n, [&](size_t i) {
     // ListNode curr = L[i];
-    if (L[i].rank < n) {
+    if (L[i].sampleflag) {
       // this is a sample node
       // ListNode* hd = &curr;
       ListNode* hd = &(L[i]);
@@ -223,7 +229,7 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
     }
   });
 
-  std::cout << L[0].rank << " " << L[1].rank << std::endl;
+  // std::cout << L[0].rank << " " << L[1].rank << std::endl;
 
   // final check and output message
   // std::cout << "FINAL CHECK" << std::endl;
