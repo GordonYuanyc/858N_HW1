@@ -28,8 +28,6 @@ T scan_up(T *A, T *L, size_t n, const F& f) {
     auto f2 = [&]() { v2 = scan_up(A+m, L+m, n-m, f); };
     par_do(f1, f2);
     L[m-1] = v1;
-    // std::cout << "v1: " << v1 << " " << "v2: " << v2 << std::endl;
-    // std::cout << "f: " << f(v1, v2) << " m " << m  << " L " << L[0] << " " << L[1] << " " << L[2] << " " << L[3] << " " << L[4] << " " << L[5] << std::endl;
     return f(v1, v2);
   }
 }
@@ -58,24 +56,10 @@ void scan_down(T *R, T *L, size_t n, const F& f, T s) {
 template <class T, class F>
 T scan_inplace(T *A, size_t n, const F& f, T id) {
   T* L = (T*)malloc((n-1) * sizeof(T));
-  T* R = (T*)malloc(n * sizeof(T));
-  // std::cout << "A: ";
-  // for (int i = 0; i < 6; i++) {
-  //   std::cout << A[i] << ";";
-  // }
-  // std::cout << " end of A" << std::endl;
+  // used for scan_down() but does not seem to be necessary
+  // T* R = (T*)malloc(n * sizeof(T));
   T total = scan_up(A, L, n, f);
-  scan_down(R, L, n, f, id);
-  // std::cout << "L: ";
-  // for (int i = 0; i < 5; i++) {
-  //   std::cout << L[i] << ";";
-  // }
-  // std::cout << " end of L" << std::endl;
-  // std::cout << "id: " << id << std::endl;
-  // std::cout << "R: ";
-  // for (int i = 0; i < 6; i++) {
-  //   std::cout << R[i] << ";";
-  // }
-  // std::cout << " end of R" << std::endl;
+  // does not seem to be necessary
+  // scan_down(R, L, n, f, id);
   return total;  // TODO
 }

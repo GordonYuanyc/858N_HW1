@@ -166,14 +166,10 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
           if (index == lastindex) {
             break;
           }
-          // std::cout << "something here " << index << std::endl;
           if (sampling[index] == identifier) {
             break;
-            // std::cout << index << "break" << std::endl;
-            // t = t->next;
           } else {
             w = w + 1;
-            // t = t->next;
           }
         }
         weight[i] = w;
